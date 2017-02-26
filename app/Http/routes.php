@@ -27,12 +27,14 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/customers', 'CustomerController@create');
     Route::post('/customers','CustomerController@store');
     Route::get('/customers/{id}', 'CustomerController@show');
+    Route::delete('/customers/{id}', 'CustomerController@destroy');
     
     Route::get('/food','FoodController@index');
     Route::get('/new_food','FoodController@create');
     Route::post('/food','FoodController@store');
     Route::put('/food/{id}','FoodController@update');
     Route::get('/edit_food/{id}','FoodController@edit');
+    Route::post('/food/add_to_customer','FoodController@addFoodToCustomer');
     
     // login
     Route::get('/login', 'Auth\AuthController@showLoginForm');

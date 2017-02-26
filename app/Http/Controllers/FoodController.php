@@ -50,4 +50,12 @@ class FoodController extends Controller
         
         return $this->food->updateEntry($entry,$request->all());
     }
+    
+    public function addFoodToCustomer(Request $request)
+    {
+        
+        return $this->food->addFoodToCustomer($request->all());
+               
+        
+    }
 }

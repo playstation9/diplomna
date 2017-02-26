@@ -10,15 +10,10 @@
                         <div class="portlet-body">
                             <div class="table-container">
                                 <div class="row">
-                                    {{-- avatar area --}}
-                                    <div class="col-md-2">
-                                        <img src="{{ $data['item']->avatar }}" class="img-responsive" alt=""/>                                    
-                                    </div>
-                                    {{-- end avatar area --}}
                                     {{-- client info area --}}
-                                    <div class="col-md-7">
-                                        <div style="margin-left: -40px; margin-right: -40px; margin-top: -10px;" class="row">
-                                            <div class="col-md-12 profile-info">
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-md-5 profile-info">
                                                 <div class="inline-headers">
                                                     <h4 style="display: inline-block">
                                                         {{ $data['item']->first_name . ' ' .
@@ -44,6 +39,26 @@
                                                         {{ App\TextFormat::fromDbToDisplayDate($data['item']->created_at) }}
                                                     </li>
                                                 </ul>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-md-2">
+                                                    <select class="form-control" id="select_food">
+                                                    @foreach($data['foods'] as $key => $food)
+                                                        <option data-food-id="{{$food->id}}" data-units="{{$food->units}}" value="{{$food->id}}">{{$food->title}}</option>
+                                                    @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-1">
+                                                    <input class="form-control" id="foodQuantity" style="max-width: 100px" type="number" value=""/>  
+                                                   
+                                                </div>
+                                                <div class="col-md-1 pull-left">
+                                                    <span id="foodUnits" class="help-inline"></span>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    
+                                                    <button class="btn btn-danger" id="addFoodToCustomer">Добави</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -72,13 +87,21 @@
                                             <table class="table table-bordered table-hover" id="foods-list-table">
                                                 <thead>
                                                 <tr role="row" class="heading">
-                                                    <th width="35%">Име</th>
+                                                    <th width="35%">Храна</th>
                                                     <th>Количество</th>
+                                                    <th>Калории</th>
                                                     <th>Дата</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                   
+                                                @foreach($data['item']->foods()->get() as $key => $food)
+                                                <tr>
+                                                    <td>{{$food->title}}</td>
+                                                    <td>{{$food->amount}} @if($food->units == 'abs') броя @else грама @endif </td>
+                                                    <td>{{$food->calories}}</td>
+                                                    <td>{{Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$food->created_at)->format('d.m.Y H:i')}}</td>
+                                                </tr>
+                                                @endforeach
                                                 </tbody>
                                             </table>
                                         </div>
@@ -96,10 +119,31 @@
 
 @section('scripts')
 @parent
-<script src="assets/js/datatables.min.js" type="text/javascript" ></script>
-
 <script>
+    $('#select_food').on('change',function(){
+        if($(this).find(':selected').data('units') == 'grams') { 
+            $('#foodUnits').html('грама');
+        } else { 
+            $('#foodUnits').html('броя');
+        }
+    })
     
+    $('#select_food').change();
+    
+    $('#addFoodToCustomer').on('click',function(){
+        var food_id = $('#select_food').find(':selected').data('foodId');
+        var quantity = $('#foodQuantity').val();
+        var data = {'food_id': food_id, 'quantity': quantity, 'user_id': '{{$data["item"]->id}}', '_token': '{{csrf_token()}}' };
+        $.ajax({
+            type: 'POST',
+            cache: false,
+            data: data,
+            url: '/food/add_to_customer',
+            success: function (response) {
+                location.reload()
+            }
+        });
+    })
 </script>
 @stop
     

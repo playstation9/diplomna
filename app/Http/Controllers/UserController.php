@@ -89,7 +89,7 @@ class UserController extends BaseController
     {
         $input = Request::all();
         
-        if (Auth::attempt(['username' => $input['email'], 'password' => $input['password'], 'deleted_at' => null]))
+        if (Auth::attempt(['username' => $input['email'], 'password' => $input['password'], 'deleted_at' => null, 'user_type' => 1]))
         {
             
             $user = Auth::user();

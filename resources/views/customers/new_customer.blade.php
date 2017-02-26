@@ -13,7 +13,7 @@
             @if(Session::has('validation_errors'))
             <div class="alert alert-danger">
                 <ul>
-                @foreach(Session::has('validation_errors') as $key => $error)
+                @foreach(Session::get('validation_errors') as $key => $error)
                 <li>{{$error}}</li>    
                 @endforeach
                 </ul>
@@ -31,14 +31,14 @@
                            name="first_name"
                            class="form-control"
                            placeholder="Име"
-                           value=""/>
+                           value="{{old('first_name')}}"/>
                 </div>
                 <div class="col-md-2">
                     <input type="text"
                            name="middle_name"
                            class="form-control"
                            placeholder="Презиме"
-                           value=""/>
+                           value="{{old('middle_name')}}"/>
                 </div>
              
 
@@ -47,7 +47,7 @@
                            name="last_name"
                            class="form-control"
                            placeholder="Фамилия"
-                           value=""/>
+                           value="{{old('last_name')}}"/>
                 </div>
             </div>                                            
 
@@ -58,8 +58,8 @@
                 </label>
                 <div class="col-md-2">
                     <select name="gender" class="form-control">
-                        <option value="male">{{ Lang::get('common.male') }}</option>
-                        <option value="female">{{ Lang::get('common.female') }}</option>
+                        <option value="male" @if(old('gender') == 'male') selected @endif>{{ Lang::get('common.male') }}</option>
+                        <option value="female" @if(old('gender') == 'female') selected @endif>{{ Lang::get('common.female') }}</option>
                     </select>
                 </div>
             </div>
@@ -75,7 +75,7 @@
                         <span class="input-group-addon">
                             <i class="fa fa-phone"></i>
                         </span>
-                        <input type="text" name="phone_1" class="form-control" placeholder="Телефон 1"/>
+                        <input type="text" name="phone_1" class="form-control" placeholder="Телефон 1" value="{{old('phone_2')}}"/>
                     </div>
                 </div>
                  <div class="col-md-3">
@@ -83,7 +83,7 @@
                         <span class="input-group-addon">
                             <i class="fa fa-phone"></i>
                         </span>
-                        <input type="text" name="phone_2" class="form-control" placeholder="Телефон 2"/>
+                        <input type="text" name="phone_2" class="form-control" placeholder="Телефон 2" value="{{old('phone_2')}}"/>
                     </div>
                 </div>
             </div>
@@ -98,7 +98,7 @@
                         <span class="input-group-addon">
                             <i class="fa fa-envelope"></i>
                         </span>
-                        <input name="email" type="email" class="form-control" placeholder="Имейл">
+                        <input name="email" type="email" class="form-control" placeholder="Имейл" value="{{old('email')}}">
                     </div>
                 </div>
             </div>
@@ -117,7 +117,7 @@
                 </div>
                 <div class="col-md-2">
                     <input type="password"
-                           name="password_confirmed"
+                           name="password_confirmation"
                            placeholder="Повтори парола"
                            class="form-control"/>
                 </div>

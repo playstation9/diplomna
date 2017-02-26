@@ -28,7 +28,7 @@ class CustomerController extends Controller
     
     public function index()
     {
-        $data['customers'] = $this->customer->get();
+        $data['customers'] = $this->customer->orderBy('created_at','desc')->get();
         
         return View::make('dashboard',['data' => $data]);
     }
@@ -36,7 +36,8 @@ class CustomerController extends Controller
     public function show($id)
     {
         $data['item'] = $this->customer->find($id);
-        
+        $data['foods'] = DB::table('food')->get();
+                
         return View::make('customers.view',['data' => $data]);
     }
     
@@ -52,4 +53,8 @@ class CustomerController extends Controller
                 
     }
     
+    public function destroy($id)
+    {        
+        return $this->customer->deleteCustomer($id);
+    }
 }

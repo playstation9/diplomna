@@ -5,6 +5,10 @@ namespace App\Models;
 use DB;
 use Auth;
 use Lang;
+use \Input;
+use Session;
+use Redirect;
+use Validator;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use \Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,59 +18,67 @@ use \Illuminate\Database\Eloquent\SoftDeletes;
 class Customer extends Model
 {
     use SoftDeletes;
+    
     protected $table = 'users';
-    protected $data; 
    
     public function __construct()
     {
         parent::__construct();
 
-        $this->data = new CustomerData();
     }
     
-
-    /**
-     * customer unique data relationship
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function data()
-    {
-        return $this->hasOne('App\Models\CustomerData', 'user_id');
-    }
-
     public function foods()
     {
-        return $this->hasMany('App\Models\Foods', 'user_id');
+        return $this->hasMany('App\Models\FoodCustomer', 'user_id');
     }
     
     public function saveNewEntry($data)
     {
 
-//        array:10 [▼
-//        "_token" => "D0lzCrQI86VitXD7P5wqIQLnMXqCrX2OK7MxdW12"
-//        "first_name" => "Гошо"
-//        "middle_name" => "Иванов"
-//        "last_name" => "Петров"
-//        "gender" => "male"
-//        "phone_1" => "0955123123"
-//        "phone_2" => "123991231"
-//        "email" => "test@examepl.com"
-//        "password" => "haha1233"
-//        "password_confirmed" => "haha1233"
-//      ]
-//      
          // validator 
         $validator = $this->registerValidator($data);
         if($validator->fails()) 
         {
             Session::flash('validation_errors',$validator->errors()->all());
-                
-            return Redirect::back()->withInput();
+
+            return back()->withInput();
                           
         }
         
-        dd($data);
+        
+        try { 
+            $this->user_type = 2;
+            $this->first_name = $data['first_name'];
+            $this->middle_name = $data['middle_name'];
+            $this->last_name = $data['last_name'];
+            $this->gender = $data['gender'];
+            $this->phone_1 = $data['phone_1'];
+            $this->phone_2 = $data['phone_2'];
+            $this->email = $this->username = $data['email'];
+            $this->password = bcrypt($data['password']);
+
+            $this->save();
+        
+        } catch (\Exception $ex) {
+           
+            Session::flash('validation_errors',[Lang::get('common.error_messages.record_save_fail')]);
+
+            return back()->withInput();
+        }
+        
+        Session::flash('success',Lang::get('common.success_messages.record_saved_success'));
+        
+        return redirect('/');
+        
+    }
+    
+    public function deleteCustomer($id)
+    {    
+        $this->find($id)->delete();
+                
+        Session::flash('success',Lang::get('common.success_messages.record_removed_success'));
+        
+        return redirect('/');
     }
     
     public function buildAPIWebView($clientId)
@@ -90,9 +102,9 @@ class Customer extends Model
     private function registerValidator($data)
     {
         $rules = [
-            'first_name'        => 'required',
-            'last_name'         => 'required',
-            'email'             => 'required|email|unique',
+            'first_name'        => 'required|alpha_dash',
+            'last_name'         => 'required|alpha_dash',
+            'email'             => 'required|email|unique:users,email',
             'password'          => 'required|confirmed|min:6'     
         ];
 
@@ -102,8 +114,11 @@ class Customer extends Model
             'email.unique'             => Lang::get('pages.users.email_unique'),
             'password.required'        => Lang::get('pages.users.password_required'),
             'password.confirmed'       => Lang::get('pages.users.password_confirmed'),
+            'password.min'             => Lang::get('pages.users.password_min'),
             'first_name.required'      => Lang::get('pages.users.first_name_required'),
             'last_name.required'       => Lang::get('pages.users.last_name_required'),
+            'first_name.alpha_dash'    => Lang::get('pages.users.first_name_alpha_dash'),
+            'last_name.alpha_dash'     => Lang::get('pages.users.last_name_alpha_dash'),
         ];
 
         return Validator::make($data, $rules, $messages);        

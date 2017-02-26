@@ -45,9 +45,8 @@ class ApiController extends Controller
     {
         $this->customer = $customer;
         
-        $this->middleware('jwt.auth',['only' => ['get']]);
+//        $this->middleware('jwt.auth',['only' => ['get']]);
         
-          
     }
         
 
@@ -126,25 +125,7 @@ class ApiController extends Controller
             return $this->setApiStatusCode(120)->setStatusCode(200)->respond('Failed to create token');
         }  
         
-    }   
-    
-    private function tryRefresh()
-    {
-        if( ! $current_token = JWTAuth::getToken()) { 
-            return $this->setApiStatusCode(111)->setStatusCode(200)->respond('Missing token');;
-        }
-        
-        try { 
-           $user = JWTAuth::authenticate($current_token);
-        } catch (TokenInvalidException $ex) {
-            return $this->setApiStatusCode(110)->setStatusCode(200)->respond('Invalid token');
-        } catch (TokenExpiredException $ex ) { 
-            $newToken = JWTAuth::refresh($current_token);
-        } 
-        
-        return isset($newToken) ? $newToken : '';
-        
-    }
+    }          
     
     private function registerValidator($data)
     {
