@@ -1,0 +1,1 @@
+Hello {{$data['first_name']}} {{$data['last_name']}}, your Fitness 33 activation code is {{$data['code']}}.  Click <a href="http:///clients33.fitsys.co/activate/{{$data['code']}}">here</a> to register
